@@ -38,6 +38,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// convert_to_r_movement
+void convert_to_r_movement(List movement_list, Rcpp::IntegerVector human);
+RcppExport SEXP _mashproto_convert_to_r_movement(SEXP movement_listSEXP, SEXP humanSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type movement_list(movement_listSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type human(humanSEXP);
+    convert_to_r_movement(movement_list, human);
+    return R_NilValue;
+END_RCPP
+}
 // movements_of_human
 NumericVector movements_of_human(List movement_list, IntegerVector human);
 RcppExport SEXP _mashproto_movements_of_human(SEXP movement_listSEXP, SEXP humanSEXP) {
@@ -55,6 +66,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mashproto_rcpp_hello_world", (DL_FUNC) &_mashproto_rcpp_hello_world, 0},
     {"_mashproto_movement_init", (DL_FUNC) &_mashproto_movement_init, 1},
     {"_mashproto_movement_step", (DL_FUNC) &_mashproto_movement_step, 2},
+    {"_mashproto_convert_to_r_movement", (DL_FUNC) &_mashproto_convert_to_r_movement, 2},
     {"_mashproto_movements_of_human", (DL_FUNC) &_mashproto_movements_of_human, 2},
     {NULL, NULL, 0}
 };

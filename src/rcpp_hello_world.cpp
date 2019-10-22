@@ -1,3 +1,5 @@
+// [[Rcpp::depends(BH)]]
+
 #include <vector>
 
 #include "boost/property_map/property_map.hpp"
@@ -32,7 +34,7 @@ class movement_machine_result {
 public:
     patch_id starting_patch(human_id query) const { return 4; };
 
-    size_t human_count() { return 10; }
+    size_t human_count() const { return 10; }
 
     /*!
      * For the human, the movement sequence will be a
@@ -107,19 +109,22 @@ List movement_step(List module, NumericVector time_step) {
  *     a list of trajectories for each person, enumerated by the person id.
  */
 // [[Rcpp::export]]
-void convert_to_r_movement(List movement_list) {
+void convert_to_r_movement(List movement_list, Rcpp::IntegerVector human) {
     auto result = as<XPtr<const movement_machine_result>>(movement_list["handle"]);
-    auto moves = List::create();
+    Rcpp::List moves;
     for (int person_idx = 0; person_idx < result->human_count(); ++person_idx) {
         auto sequence = result->movements_of_human(human[0]);
-        auto vector = NumericVector(Dimension(sequence.size(), 2));
+        // auto sequence = result->movements_of_human(0);
+        Rcpp::NumericMatrix vector(sequence.size(),2);
         for (int i = 0; i < sequence.size(); ++i) {
             vector[i, 0] = std::get<0>(sequence[i]);
             vector[i, 1] = std::get<1>(sequence[i]);
         }
-        moves[person_idx] = vector;
+        moves.push_back(Rcpp::clone(vector));
     }
-    movement_list[CharacterVector::create("moves")] = moves;
+    movement_list.push_back(Rcpp::clone(moves));
+    movement_list.names() = Rcpp::CharacterVector::create("handle","moves");
+    // movement_list[CharacterVector::create("moves")] = moves;
 }
 
 
@@ -135,7 +140,8 @@ void convert_to_r_movement(List movement_list) {
 NumericVector movements_of_human(List movement_list, IntegerVector human) {
     auto result = as<XPtr<const movement_machine_result>>(movement_list["handle"]);
     auto sequence = result->movements_of_human(human[0]);
-    auto vector = NumericVector(Dimension(sequence.size(), 2));
+    // auto vector = NumericVector(Dimension(sequence.size(), 2));
+    Rcpp::NumericMatrix vector(sequence.size(),2);
     for (int i=0; i < sequence.size(); ++i) {
         vector[i, 0] = std::get<0>(sequence[i]);
         vector[i, 1] = std::get<1>(sequence[i]);

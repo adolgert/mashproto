@@ -13,6 +13,10 @@ movement_step <- function(module, time_step) {
     .Call(`_mashproto_movement_step`, module, time_step)
 }
 
+convert_to_r_movement <- function(movement_list, human) {
+    invisible(.Call(`_mashproto_convert_to_r_movement`, movement_list, human))
+}
+
 movements_of_human <- function(movement_list, human) {
     .Call(`_mashproto_movements_of_human`, movement_list, human)
 }
