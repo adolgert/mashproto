@@ -13,9 +13,15 @@ rm(list=ls());gc()
 # no state "blips", also no enter and exit functions; it's a pure expression of the math;
 # that's why its called simpleCT (simple continuous time)
 
+# this is a null event
+null_event <- data.table::data.table(tEvent = 1e6,tag = "null",data = list(list()))
+
+# if we want to quickly add lots of rows, do this 
+do.call(rbind,replicate(5,null_event,simplify = F))
+
 # makes the event queue
 make_queue_simpleCT <- function(max=100L){
-  qenv <- new.env(hash = FALSE,size = 1L)
+  qenv <- new.env(hash = FALSE,size = 2L)
   assign(x = "q",
          value = data.table::data.table(
            tEvent = rep(1e6,max),
@@ -23,7 +29,12 @@ make_queue_simpleCT <- function(max=100L){
            data = list(list())
          ),envir = qenv,
          inherits = FALSE)
+  assign(x = "tnow",value = 0.0,envir = qenv,inherits = FALSE)
   return(qenv)
+}
+
+addEvent2Q <- function(qenv,tEvent,tag,data = list(list())){
+  UseMethod("addEvent2Q")
 }
 
 # addEvent2Q function
@@ -42,14 +53,31 @@ addEvent2Q.simpleCT <- function(qenv,tEvent,tag,data = list(list())){
   data.table::setorder(qenv$q,tEvent)
 }
 
+rmTagFromQ <- function(qenv,tag){
+  UseMethod("rmTagFromQ")
+}
+
+# sets all events with a given tag to null
+rmTagFromQ.simpleCT <- function(qenv,tag){
+  n <- qenv$q[tag==tag,which = TRUE]
+  if(length(n) > 0){
+    data.table::set(x = qenv$q,i = n,j = 1:3,value = null_event)
+    data.table::setorder(qenv$q,tEvent)
+  }
+}
+
+# fireEvent function
+
+fireEvent.simpleCT <- function(qenv,tmax,)
+
 queue <- make_queue_simpleCT(max = 3)
-
-
 
 queue$q
 addEvent2Q.simpleCT(qenv = queue,tEvent = 3,tag = "test1")
 addEvent2Q.simpleCT(qenv = queue,tEvent = 1.323,tag = "test2")
 addEvent2Q.simpleCT(qenv = queue,tEvent = 3,tag = "test3",data = list(list(a=5,b=232.2,c="hello, there")))
+
+addEvent2Q.simpleCT(qenv = queue,tEvent = rexp(1),tag = "test2")
 
 # this guy should force a copy
 addEvent2Q.simpleCT(qenv = queue,tEvent = 5.23,tag = "test4",data = list(list(alpha=complex(1))))
