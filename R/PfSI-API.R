@@ -2,11 +2,7 @@
 # prototyping a queue
 ################################################################################
 
-# event queue is a singly-linked list
-# it needs to be hand-rolled in R and there is no R level
-# native linked list ADT
 
-# its a Lisp-style list
 
 # make a queue for simple continuous-time models
 # this means that the events change state all at once
@@ -48,6 +44,7 @@ addEvent2Q.simpleCT <- function(q,tEvent,tag,data = list()){
     data.table::set(x = q,i = ,j = )
     # need to append rows
   } else {
+    # we might be able to use a join here rather than rbind for complete in-place modification. see section 3.5 of https://franknarf1.github.io/r-tutorial/_book/tables.html
     q <- rbind(q,event)
   }
   data.table::setorder(q,tEvent)
