@@ -2,13 +2,60 @@
 # prototyping a queue
 ################################################################################
 
+# event queue is a singly-linked list
+# it needs to be hand-rolled in R and there is no R level
+# native linked list ADT
+
+# its a Lisp-style list
+
 # make a queue for simple continuous-time models
 # this means that the events change state all at once
 # no state "blips", also no enter and exit functions; it's a pure expression of the math;
 # that's why its called simpleCT (simple continuous time)
-make_queue_simpleCT <- function(){
-  
+make_queue_simpleCT <- function(max=100L){
+  q <- data.table::data.table(
+    tEvent = rep(.Machine$double.xmax,max),
+    tag = rep("null",max),
+    data = rep(vector("list",1),max)
+  )
 }
+
+max = 10
+q <- data.table::data.table(
+  tEvent = rep(.Machine$double.xmax,max),
+  tag = rep("null",max),
+  data = rep(vector("list",1),max)
+)
+
+
+q[tag == "null"][1] <- data.table(tEvent = 5,tag = "test1",data = list(list(b=5,c=32)))
+q[tag == "null"][1] <- data.table(tEvent = 2,tag = "test2",data = list(list(alpha=2312)))
+
+
+# both these assignments work
+q[q[tag=="null",which=TRUE][1],c("tEvent","tag","data") := list(3,"test1",vector("list",1))]
+data.table::set(x = q,i = q[tag=="null",which=TRUE][1],j = 1:3,value = list(3,"test1",vector("list",1)))
+
+data.table::setorder(q,tEvent)
+
+
+addEvent2Q.simpleCT <- function(q,tEvent,tag,data = list()){
+  # might be unnecessary
+  stopifnot(class(event)[1]=="data.table")
+  # insert to blank space
+  if(q[,any(tag=="null")]){
+    # q[tag == "null"][1] <- event
+    data.table::set(x = q,i = ,j = )
+    # need to append rows
+  } else {
+    q <- rbind(q,event)
+  }
+  data.table::setorder(q,tEvent)
+}
+
+
+addEvent2Q.simpleCT(q = q,event = data.table(tEvent = 3,tag = "test1",data = list()))
+
 
 
 ################################################################################
